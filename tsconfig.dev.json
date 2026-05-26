@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@intentsync/core": ["./packages/core/src/index.ts"],
+      "@intentsync/logger": ["./packages/logger/src/index.ts"],
+      "@intentsync/repository-provider": ["./packages/repository-provider/src/index.ts"]
+    }
+  }
+}

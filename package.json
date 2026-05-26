@@ -1,0 +1,15 @@
+{
+  "name": "intentsync",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "cli": "pnpm --filter @intentsync/cli dev"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.11",
+    "tsx": "^4.11.0",
+    "typescript": "^5.4.5"
+  }
+}
