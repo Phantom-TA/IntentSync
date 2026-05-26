@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Repository ────────────────────────────────────────────────────
+model Repository {
+  id            String   @id @default(cuid())
+  owner         String
+  name          String
+  url           String
+  source        String   // 'github' | 'local'
+  defaultBranch String   @default("main")
+  description   String?
+  lastSyncedAt  DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  commits      Commit[]
+  pullRequests PullRequest[]
+  issues       Issue[]
+  files        File[]
+  developers   Developer[]
+  embeddings   Embedding[]
+
+  @@unique([owner, name])
+}
+
+// ─── Developer ─────────────────────────────────────────────────────
+model Developer {
+  id       String @id @default(cuid())
+  login    String
+  email    String?
+  repoId   String
+  repo     Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  commits  Commit[]
+
+  @@unique([login, repoId])
+}
+
+// ─── Commit ────────────────────────────────────────────────────────
+model Commit {
+  id            String   @id @default(cuid())
+  sha           String
+  message       String
+  timestamp     DateTime
+  additions     Int      @default(0)
+  deletions     Int      @default(0)
+  filesChanged  String[] // array of file paths
+  parents       String[] // parent SHAs
+  aiSummary     String?  // generated lazily during retrieval
+
+  authorId      String
+  author        Developer @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  repoId        String
+  repo          Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+
+  @@unique([sha, repoId])
+}
+
+// ─── PullRequest ───────────────────────────────────────────────────
+model PullRequest {
+  id            String   @id @default(cuid())
+  number        Int
+  title         String
+  body          String?
+  state         String   // 'open' | 'closed' | 'merged'
+  authorLogin   String
+  commitShas    String[]
+  labels        String[]
+  createdAt     DateTime
+  mergedAt      DateTime?
+  aiSummary     String?  // generated lazily during retrieval
+
+  repoId        String
+  repo          Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@unique([number, repoId])
+}
+
+// ─── Issue ─────────────────────────────────────────────────────────
+model Issue {
+  id                  String   @id @default(cuid())
+  number              Int
+  title               String
+  body                String?
+  state               String   // 'open' | 'closed'
+  authorLogin         String
+  labels              String[]
+  referencedPRNumbers Int[]
+  createdAt           DateTime
+  closedAt            DateTime?
+
+  repoId              String
+  repo                Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@unique([number, repoId])
+}
+
+// ─── File ──────────────────────────────────────────────────────────
+model File {
+  id              String @id @default(cuid())
+  path            String
+  changeFrequency Int    @default(0)
+  lastModifiedSha String?
+
+  repoId          String
+  repo            Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@unique([path, repoId])
+}
+
+// ─── Embedding ─────────────────────────────────────────────────────
+model Embedding {
+  id         String @id @default(cuid())
+  entityType String // 'commit' | 'pull_request' | 'issue' | 'file'
+  entityId   String
+  chunkIndex Int
+  chunkText  String
+  chromaId   String? // reference to ChromaDB vector
+
+  repoId     String
+  repo       Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  createdAt  DateTime @default(now())
+
+  @@unique([entityId, chunkIndex, repoId])
+}
