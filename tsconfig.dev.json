@@ -6,7 +6,9 @@
       "@intentsync/logger": ["./packages/logger/src/index.ts"],
       "@intentsync/repository-provider": ["./packages/repository-provider/src/index.ts"],
       "@intentsync/github-sync": ["./packages/github-sync/src/index.ts"],
-      "@intentsync/ingestion": ["./packages/ingestion/src/index.ts"]
+      "@intentsync/ingestion": ["./packages/ingestion/src/index.ts"],
+      "@intentsync/db": ["./packages/db/src/index.ts"],
+      "@intentsync/embeddings": ["./packages/embeddings/src/index.ts"]
     }
   }
 }

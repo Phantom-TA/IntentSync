@@ -25,11 +25,17 @@ Welcome to the **IntentSync** engineering memory and architecture documentation 
 * GitHub-specific metadata sync (PRs, issues, contributors).
 * Live CLI `sync` command wired to real pipeline.
 
+### 4. [Phase 3: PostgreSQL + ChromaDB + Embeddings (Completed)](./phase-3-persistence-embeddings.md)
+* Prisma schema with 7 domain models and upsert-based persistence.
+* Gemini embedding provider with batch generation.
+* ChromaDB vector storage with entity-specific chunking.
+* Integrated 3-step sync: ingest → persist → embed.
+* Graceful degradation when services are offline.
+
 ---
 
 ## 🚀 Future Documentation
 As implementation moves forward, subsequent documentation will detail:
-* **Phase 3 Persistence (Postgres & ChromaDB adapter details)**
 * **Phase 4 Retrieval & prompt caching interfaces**
 * **Phase 5 Code analysis algorithms & scoring definitions**
 * **Phase 6 GraphRAG expansion & Cypher integrations**
