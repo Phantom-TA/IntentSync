@@ -23,6 +23,12 @@ importers:
       '@intentsync/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@intentsync/github-sync':
+        specifier: workspace:*
+        version: link:../../packages/github-sync
+      '@intentsync/ingestion':
+        specifier: workspace:*
+        version: link:../../packages/ingestion
       '@intentsync/logger':
         specifier: workspace:*
         version: link:../../packages/logger
@@ -51,6 +57,33 @@ importers:
       zod:
         specifier: ^3.23.8
         version: 3.25.76
+
+  packages/github-sync:
+    dependencies:
+      '@intentsync/core':
+        specifier: workspace:*
+        version: link:../core
+      '@intentsync/logger':
+        specifier: workspace:*
+        version: link:../logger
+      '@intentsync/repository-provider':
+        specifier: workspace:*
+        version: link:../repository-provider
+
+  packages/ingestion:
+    dependencies:
+      '@intentsync/core':
+        specifier: workspace:*
+        version: link:../core
+      '@intentsync/github-sync':
+        specifier: workspace:*
+        version: link:../github-sync
+      '@intentsync/logger':
+        specifier: workspace:*
+        version: link:../logger
+      '@intentsync/repository-provider':
+        specifier: workspace:*
+        version: link:../repository-provider
 
   packages/logger:
     dependencies:

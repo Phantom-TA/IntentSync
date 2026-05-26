@@ -19,11 +19,16 @@ Welcome to the **IntentSync** engineering memory and architecture documentation 
 * Dynamic CLI commands via Commander.js.
 * Workspace compile targets and dev paths integration.
 
+### 3. [Phase 2: Ingestion Pipeline (Completed)](./phase-2-ingestion.md)
+* Sequential 7-step ingestion pipeline extracting raw repository metadata.
+* Commit + diff extraction with configurable limits.
+* GitHub-specific metadata sync (PRs, issues, contributors).
+* Live CLI `sync` command wired to real pipeline.
+
 ---
 
-## 🚀 Future Ingress & Operations Documentation
+## 🚀 Future Documentation
 As implementation moves forward, subsequent documentation will detail:
-* **Phase 2 Ingestion Pipeline & Synchronization API specs**
 * **Phase 3 Persistence (Postgres & ChromaDB adapter details)**
 * **Phase 4 Retrieval & prompt caching interfaces**
 * **Phase 5 Code analysis algorithms & scoring definitions**
