@@ -1,0 +1,24 @@
+{
+  "name": "@intentsync/repository-provider",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@intentsync/core": "workspace:*",
+    "@intentsync/logger": "workspace:*",
+    "@octokit/rest": "^20.1.1",
+    "simple-git": "^3.25.0"
+  }
+}
