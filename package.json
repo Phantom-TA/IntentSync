@@ -11,5 +11,8 @@
     "@types/node": "^20.12.11",
     "tsx": "^4.11.0",
     "typescript": "^5.4.5"
+  },
+  "overrides": {
+    "ioredis": "5.10.1"
   }
 }

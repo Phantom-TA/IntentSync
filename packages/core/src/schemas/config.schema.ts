@@ -13,6 +13,11 @@ export const configSchema = z.object({
   NEO4J_USER: z.string().optional(),
   NEO4J_PASSWORD: z.string().optional(),
 
+  // Redis — Phase 7
+  REDIS_HOST: z.string().default('localhost'),
+  REDIS_PORT: z.coerce.number().default(6379),
+  REDIS_PASSWORD: z.string().optional(),
+
   // GitHub
   GITHUB_TOKEN: z.string().optional(),
 

@@ -5,6 +5,7 @@ import { syncCommand } from './commands/sync.js';
 import { askCommand } from './commands/ask.js';
 import { inspectCommand } from './commands/inspect.js';
 import { statusCommand } from './commands/status.js';
+import { workerCommand } from './commands/worker.js';
 import { printError } from './utils/output.js';
 import chalk from 'chalk';
 
@@ -23,6 +24,7 @@ program.addCommand(syncCommand);
 program.addCommand(askCommand);
 program.addCommand(inspectCommand);
 program.addCommand(statusCommand);
+program.addCommand(workerCommand);
 
 program.parseAsync(process.argv).catch((error: unknown) => {
   printError(error instanceof Error ? error.message : String(error));
