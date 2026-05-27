@@ -14,6 +14,7 @@
     "@intentsync/logger": "workspace:*",
     "@intentsync/db": "workspace:*",
     "@intentsync/retrieval": "workspace:*",
+    "@intentsync/graph": "workspace:*",
     "@prisma/client": "*",
     "@google/generative-ai": "^0.15.0"
   }

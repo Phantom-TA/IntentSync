@@ -11,7 +11,8 @@
       "@intentsync/embeddings": ["./packages/embeddings/src/index.ts"],
       "@intentsync/retrieval": ["./packages/retrieval/src/index.ts"],
       "@intentsync/ai-engine": ["./packages/ai-engine/src/index.ts"],
-      "@intentsync/analysis": ["./packages/analysis/src/index.ts"]
+      "@intentsync/analysis": ["./packages/analysis/src/index.ts"],
+      "@intentsync/graph": ["./packages/graph/src/index.ts"]
     }
   }
 }

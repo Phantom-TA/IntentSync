@@ -74,12 +74,42 @@ export class RetrievalEngine {
       // Step 3: Apply repository-aware ranking
       const context = rankContext(query, repoId, chunks, hydration, Date.now() - start);
 
+      // Step 4: Augment with logical co-change relationships from Neo4j (Phase 6)
+      let coChanges: any[] = [];
+      try {
+        const { verifyNeo4jConnection, getCoChangedFiles } = await import('@intentsync/graph');
+        const neo4jHealthy = await verifyNeo4jConnection();
+        if (neo4jHealthy) {
+          const touchedFiles = new Set<string>();
+          for (const commit of context.commits) {
+            for (const file of commit.filesChanged) {
+              touchedFiles.add(file);
+            }
+          }
+          for (const chunk of context.chunks) {
+            if (chunk.entityType === 'file') {
+              touchedFiles.add(chunk.entityId);
+            }
+          }
+
+          if (touchedFiles.size > 0) {
+            coChanges = await getCoChangedFiles(repoId, Array.from(touchedFiles), 1);
+          }
+        }
+      } catch (err) {
+        this.log.debug(`Neo4j retrieval skipped: ${String(err)}`);
+      }
+
+      context.coChanges = coChanges;
+      context.durationMs = Date.now() - start;
+
       this.log.info(
         {
           chunks: context.chunks.length,
           commits: context.commits.length,
           prs: context.pullRequests.length,
           issues: context.issues.length,
+          coChanges: context.coChanges.length,
           durationMs: context.durationMs,
         },
         'Retrieval complete',

@@ -44,9 +44,14 @@ Welcome to the **IntentSync** engineering memory and architecture documentation 
 * Developer ownership, commit shares, and line churn shares calculations.
 * Recursive module directories aggregation, active contributor indexing, and folder health metrics.
 
+### 7. [Phase 6: GraphRAG Expansion & Neo4j Integration (Completed)](./phase-6-graphrag.md)
+* Neo4j community server setup and credentials wiring.
+* Commit authoring mappings, file modifications, and developer relationships indexing.
+* Dynamic co-change software coupling weights computations.
+* GraphRAG context expansion with logical change warning prompts.
+
 ---
 
 ## 🚀 Future Documentation
 As implementation moves forward, subsequent documentation will detail:
-* **Phase 6 GraphRAG expansion & Cypher integrations**
 * **Phase 7 Distributed BullMQ processing schemas**

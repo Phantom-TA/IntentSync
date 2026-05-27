@@ -106,6 +106,16 @@ Your role is to answer questions about a specific code repository using ONLY the
     );
   }
 
+  if (context.coChanges && context.coChanges.length > 0) {
+    const coChangesStr = context.coChanges
+      .map(
+        (c) =>
+          `- File "${c.sourcePath}" and "${c.targetPath}" are highly coupled (modified together in ${c.weight} commits). If one is changed, the other frequently needs modifications.`,
+      )
+      .join('\n');
+    sections.push(`━━━ STRUCTURAL CO-CHANGE COUPLING (NEO4J GRAPH) ━━━\n${coChangesStr}`);
+  }
+
   // If only raw chunks available (no hydrated entities), include chunk text as fallback
   if (
     context.commits.length === 0 &&

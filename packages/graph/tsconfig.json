@@ -7,9 +7,6 @@
   "include": ["src"],
   "references": [
     { "path": "../core" },
-    { "path": "../logger" },
-    { "path": "../db" },
-    { "path": "../retrieval" },
-    { "path": "../graph" }
+    { "path": "../logger" }
   ]
 }
