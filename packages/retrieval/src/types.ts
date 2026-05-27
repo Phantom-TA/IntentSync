@@ -65,5 +65,7 @@ export interface RankedContext {
   pullRequests: HydratedPR[];
   /** Hydrated issues referenced in the top chunks */
   issues: HydratedIssue[];
+  /** Graph-based co-change warnings from Neo4j (Phase 6) */
+  coChanges?: Array<{ sourcePath: string; targetPath: string; weight: number }>;
   durationMs: number;
 }

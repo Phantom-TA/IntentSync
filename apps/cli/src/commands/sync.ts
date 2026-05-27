@@ -79,7 +79,7 @@ export const syncCommand = new Command('sync')
         printInfo('');
 
         // ── Step 1: Ingestion ─────────────────────────────────────
-        printInfo('Step 1/3 — Running ingestion pipeline...');
+        printInfo('Step 1/4 — Running ingestion pipeline...');
         printDivider();
 
         const result = await runIngestionPipeline(providerConfig, {
@@ -106,7 +106,7 @@ export const syncCommand = new Command('sync')
 
         if (!opts.skipPersist) {
           printInfo('');
-          printInfo('Step 2/3 — Persisting to PostgreSQL...');
+          printInfo('Step 2/4 — Persisting to PostgreSQL...');
           printDivider();
 
           try {
@@ -135,13 +135,13 @@ export const syncCommand = new Command('sync')
           }
         } else {
           printInfo('');
-          printInfo('Step 2/3 — Persistence skipped (--skip-persist)');
+          printInfo('Step 2/4 — Persistence skipped (--skip-persist)');
         }
 
         // ── Step 3: Embeddings ────────────────────────────────────
         if (!opts.skipEmbed) {
           printInfo('');
-          printInfo('Step 3/3 — Generating embeddings...');
+          printInfo('Step 3/4 — Generating embeddings...');
           printDivider();
 
           try {
@@ -174,7 +174,65 @@ export const syncCommand = new Command('sync')
           }
         } else {
           printInfo('');
-          printInfo('Step 3/3 — Embeddings skipped (--skip-embed)');
+          printInfo('Step 3/4 — Embeddings skipped (--skip-embed)');
+        }
+
+        // ── Step 4: Graph Database (Neo4j) ────────────────────────
+        if (repoDbId) {
+          printInfo('');
+          printInfo('Step 4/4 — Synchronising Graph Database (Neo4j)...');
+          printDivider();
+
+          try {
+            const db = getDbClient();
+            const dbDevelopers = await db.developer.findMany({
+              where: { repoId: repoDbId },
+              select: { id: true, login: true },
+            });
+            const dbFiles = await db.file.findMany({
+              where: { repoId: repoDbId },
+              select: { id: true, path: true },
+            });
+            const dbCommits = await db.commit.findMany({
+              where: { repoId: repoDbId },
+              include: { author: true },
+            });
+
+            const graphInput = {
+              repoId: repoDbId,
+              owner: result.metadata.owner,
+              name: result.metadata.name,
+              developers: dbDevelopers,
+              files: dbFiles,
+              commits: dbCommits.map((c) => ({
+                id: c.id,
+                sha: c.sha,
+                message: c.message,
+                timestamp: c.timestamp,
+                authorLogin: c.author.login,
+                filesChanged: c.filesChanged,
+              })),
+            };
+
+            const { verifyNeo4jConnection, syncGraph, closeNeo4jDriver } = await import('@intentsync/graph');
+            const neo4jHealthy = await verifyNeo4jConnection();
+            if (neo4jHealthy) {
+              const graphStart = Date.now();
+              await syncGraph(graphInput);
+              printKeyValue('Nodes/Edges Synced', `${graphInput.commits.length} commits, ${graphInput.files.length} files`);
+              printKeyValue('Duration', `${((Date.now() - graphStart) / 1000).toFixed(2)}s`);
+              printSuccess('Graph database synchronized with Neo4j.');
+            } else {
+              printWarning('Neo4j connection could not be verified. Skipping graph sync.');
+            }
+            await closeNeo4jDriver().catch(() => {});
+          } catch (error) {
+            printWarning(`Graph sync failed: ${error instanceof Error ? error.message : String(error)}`);
+            printWarning('Continuing without Graph Sync. Ensure Neo4j is running.');
+          }
+        } else {
+          printInfo('');
+          printInfo('Step 4/4 — Graph Database skipped (requires active PostgreSQL persistence)');
         }
 
         // ── Summary ───────────────────────────────────────────────

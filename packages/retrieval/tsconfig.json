@@ -9,6 +9,7 @@
     { "path": "../core" },
     { "path": "../logger" },
     { "path": "../embeddings" },
-    { "path": "../db" }
+    { "path": "../db" },
+    { "path": "../graph" }
   ]
 }

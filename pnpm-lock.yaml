@@ -38,6 +38,9 @@ importers:
       '@intentsync/github-sync':
         specifier: workspace:*
         version: link:../../packages/github-sync
+      '@intentsync/graph':
+        specifier: workspace:*
+        version: link:../../packages/graph
       '@intentsync/ingestion':
         specifier: workspace:*
         version: link:../../packages/ingestion
@@ -75,6 +78,9 @@ importers:
       '@intentsync/db':
         specifier: workspace:*
         version: link:../db
+      '@intentsync/graph':
+        specifier: workspace:*
+        version: link:../graph
       '@intentsync/logger':
         specifier: workspace:*
         version: link:../logger
@@ -156,6 +162,22 @@ importers:
         specifier: workspace:*
         version: link:../repository-provider
 
+  packages/graph:
+    dependencies:
+      '@intentsync/core':
+        specifier: workspace:*
+        version: link:../core
+      '@intentsync/logger':
+        specifier: workspace:*
+        version: link:../logger
+      neo4j-driver:
+        specifier: ^5.20.0
+        version: 5.28.3
+    devDependencies:
+      typescript:
+        specifier: ^5.4.5
+        version: 5.9.3
+
   packages/ingestion:
     dependencies:
       '@intentsync/core':
@@ -210,6 +232,9 @@ importers:
       '@intentsync/embeddings':
         specifier: workspace:*
         version: link:../embeddings
+      '@intentsync/graph':
+        specifier: workspace:*
+        version: link:../graph
       '@intentsync/logger':
         specifier: workspace:*
         version: link:../logger
@@ -683,6 +708,15 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
+  neo4j-driver-bolt-connection@5.28.3:
+    resolution: {integrity: sha512-wqHBYcU0FVRDmdsoZ+Fk0S/InYmu9/4BT6fPYh45Jimg/J7vQBUcdkiHGU7nop7HRb1ZgJmL305mJb6g5Bv35Q==}
+
+  neo4j-driver-core@5.28.3:
+    resolution: {integrity: sha512-Jk+hAmjFmO5YzVH/U7FyKXigot9zmIfLz6SZQy0xfr4zfTE/S8fOYFOGqKQTHBE86HHOWH2RbTslbxIb+XtU2g==}
+
+  neo4j-driver@5.28.3:
+    resolution: {integrity: sha512-k7c0wEh3HoONv1v5AyLp9/BDAbYHJhz2TZvzWstSEU3g3suQcXmKEaYBfrK2UMzxcy3bCT0DrnfRbzsOW5G/Ag==}
+
   node-fetch-native@1.6.7:
     resolution: {integrity: sha512-g9yhqoedzIUm0nTnTqAQvueMPVOuIY16bqgAJJC8XOOubYFNwz6IER9qs0Gq2Xd0+CecCKFjtdDTMA4u4xG06Q==}
 
@@ -774,6 +808,9 @@ packages:
     resolution: {integrity: sha512-57frrGM/OCTLqLOAh0mhVA9VBMHd+9U7Zb2THMGdBUoZVOtGbJzjxsYGDJ3A9AYYCP4hn6y1TVbaOfzWtm5GFg==}
     engines: {node: '>= 12.13.0'}
 
+  rxjs@7.8.2:
+    resolution: {integrity: sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==}
+
   safe-buffer@5.2.1:
     resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==}
 
@@ -818,6 +855,9 @@ packages:
 
   tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
+
+  tslib@2.8.1:
+    resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
   tsx@4.22.3:
     resolution: {integrity: sha512-mdoNxBC/cSQObGGVQ5Bpn5i+yv7j68gk3Nfm3wFjcJg3Z0Mix9jzAFfP12prmm5eVGmDKtp0yyArrs0Q+8gZHg==}
@@ -1240,6 +1280,20 @@ snapshots:
 
   ms@2.1.3: {}
 
+  neo4j-driver-bolt-connection@5.28.3:
+    dependencies:
+      buffer: 6.0.3
+      neo4j-driver-core: 5.28.3
+      string_decoder: 1.3.0
+
+  neo4j-driver-core@5.28.3: {}
+
+  neo4j-driver@5.28.3:
+    dependencies:
+      neo4j-driver-bolt-connection: 5.28.3
+      neo4j-driver-core: 5.28.3
+      rxjs: 7.8.2
+
   node-fetch-native@1.6.7: {}
 
   node-fetch@2.7.0:
@@ -1346,6 +1400,10 @@ snapshots:
 
   real-require@0.2.0: {}
 
+  rxjs@7.8.2:
+    dependencies:
+      tslib: 2.8.1
+
   safe-buffer@5.2.1: {}
 
   safe-stable-stringify@2.5.0: {}
@@ -1391,6 +1449,8 @@ snapshots:
   tinyexec@1.2.2: {}
 
   tr46@0.0.3: {}
+
+  tslib@2.8.1: {}
 
   tsx@4.22.3:
     dependencies:
