@@ -13,6 +13,7 @@
     { "path": "../../packages/db" },
     { "path": "../../packages/embeddings" },
     { "path": "../../packages/retrieval" },
-    { "path": "../../packages/ai-engine" }
+    { "path": "../../packages/ai-engine" },
+    { "path": "../../packages/analysis" }
   ]
 }

@@ -23,6 +23,9 @@ importers:
       '@intentsync/ai-engine':
         specifier: workspace:*
         version: link:../../packages/ai-engine
+      '@intentsync/analysis':
+        specifier: workspace:*
+        version: link:../../packages/analysis
       '@intentsync/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -81,6 +84,25 @@ importers:
       '@prisma/client':
         specifier: '*'
         version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
+
+  packages/analysis:
+    dependencies:
+      '@intentsync/core':
+        specifier: workspace:*
+        version: link:../core
+      '@intentsync/db':
+        specifier: workspace:*
+        version: link:../db
+      '@intentsync/logger':
+        specifier: workspace:*
+        version: link:../logger
+      '@prisma/client':
+        specifier: '*'
+        version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
+    devDependencies:
+      typescript:
+        specifier: ^5.4.5
+        version: 5.9.3
 
   packages/core:
     dependencies:

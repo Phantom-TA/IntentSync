@@ -39,10 +39,14 @@ Welcome to the **IntentSync** engineering memory and architecture documentation 
 * Evidence-grounded Gemini-2.5-flash reasoning with explicit source citations.
 * Lazy, fire-and-forget summary caching.
 
+### 6. [Phase 5: Repository-Level Intelligence & Diagnostics (Completed)](./phase-5-inspect.md)
+* File Instability and recency-weighted change scoring.
+* Developer ownership, commit shares, and line churn shares calculations.
+* Recursive module directories aggregation, active contributor indexing, and folder health metrics.
+
 ---
 
 ## 🚀 Future Documentation
 As implementation moves forward, subsequent documentation will detail:
-* **Phase 5 Code analysis algorithms & scoring definitions**
 * **Phase 6 GraphRAG expansion & Cypher integrations**
 * **Phase 7 Distributed BullMQ processing schemas**
