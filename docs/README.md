@@ -32,11 +32,17 @@ Welcome to the **IntentSync** engineering memory and architecture documentation 
 * Integrated 3-step sync: ingest → persist → embed.
 * Graceful degradation when services are offline.
 
+### 5. [Phase 4: Retrieval + AI Query Engine (Completed)](./phase-4-retrieval-query.md)
+* Semantic similarity searches across parallel ChromaDB collections.
+* Relational entity hydration from PostgreSQL database.
+* Repository-aware ranking with recency and merge status boosts.
+* Evidence-grounded Gemini-2.5-flash reasoning with explicit source citations.
+* Lazy, fire-and-forget summary caching.
+
 ---
 
 ## 🚀 Future Documentation
 As implementation moves forward, subsequent documentation will detail:
-* **Phase 4 Retrieval & prompt caching interfaces**
 * **Phase 5 Code analysis algorithms & scoring definitions**
 * **Phase 6 GraphRAG expansion & Cypher integrations**
 * **Phase 7 Distributed BullMQ processing schemas**
