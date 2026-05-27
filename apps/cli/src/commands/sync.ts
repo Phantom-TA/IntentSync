@@ -24,6 +24,7 @@ export const syncCommand = new Command('sync')
   .option('--max-diff-commits <number>', 'Max commits to fetch diffs for', '100')
   .option('--skip-persist', 'Skip PostgreSQL persistence', false)
   .option('--skip-embed', 'Skip embedding generation', false)
+  .option('-a, --async', 'Run sync asynchronously in the background via BullMQ', false)
   .action(
     async (opts: {
       repo?: string;
@@ -34,6 +35,7 @@ export const syncCommand = new Command('sync')
       maxDiffCommits: string;
       skipPersist: boolean;
       skipEmbed: boolean;
+      async: boolean;
     }) => {
       if (!opts.repo && !opts.local) {
         printError('Provide either --repo <owner/repo> or --local <path>');
@@ -67,6 +69,23 @@ export const syncCommand = new Command('sync')
             type: 'local',
             repoPath: opts.local!,
           };
+        }
+
+        if (opts.async) {
+          const { addSyncFlow, closeSharedRedisConnection } = await import('@intentsync/queue');
+          const { jobId } = await addSyncFlow(providerConfig, {
+            incremental: opts.incremental,
+            maxCommits: parseInt(opts.maxCommits, 10),
+            fetchDiffs: opts.diffs,
+            maxDiffCommits: parseInt(opts.maxDiffCommits, 10),
+            skipPersist: opts.skipPersist,
+            skipEmbed: opts.skipEmbed,
+          });
+          printSuccess('Sync job successfully queued to BullMQ.');
+          printKeyValue('Job ID', jobId);
+          printInfo("Run 'intentsync worker' to start processing the queue.");
+          await closeSharedRedisConnection();
+          return;
         }
 
         const target = opts.repo ?? opts.local!;

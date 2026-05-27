@@ -15,6 +15,7 @@
     { "path": "../../packages/retrieval" },
     { "path": "../../packages/ai-engine" },
     { "path": "../../packages/analysis" },
-    { "path": "../../packages/graph" }
+    { "path": "../../packages/graph" },
+    { "path": "../../packages/queue" }
   ]
 }

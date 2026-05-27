@@ -35,7 +35,19 @@ services:
     profiles:
       - phase6
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+
 volumes:
   postgres_data:
   chroma_data:
   neo4j_data:
+  redis_data:
