@@ -20,6 +20,9 @@ importers:
 
   apps/cli:
     dependencies:
+      '@intentsync/ai-engine':
+        specifier: workspace:*
+        version: link:../../packages/ai-engine
       '@intentsync/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -41,6 +44,9 @@ importers:
       '@intentsync/repository-provider':
         specifier: workspace:*
         version: link:../../packages/repository-provider
+      '@intentsync/retrieval':
+        specifier: workspace:*
+        version: link:../../packages/retrieval
       chalk:
         specifier: ^5.3.0
         version: 5.6.2
@@ -54,6 +60,27 @@ importers:
       tsx:
         specifier: ^4.11.0
         version: 4.22.3
+
+  packages/ai-engine:
+    dependencies:
+      '@google/generative-ai':
+        specifier: ^0.15.0
+        version: 0.15.0
+      '@intentsync/core':
+        specifier: workspace:*
+        version: link:../core
+      '@intentsync/db':
+        specifier: workspace:*
+        version: link:../db
+      '@intentsync/logger':
+        specifier: workspace:*
+        version: link:../logger
+      '@intentsync/retrieval':
+        specifier: workspace:*
+        version: link:../retrieval
+      '@prisma/client':
+        specifier: '*'
+        version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
 
   packages/core:
     dependencies:
@@ -149,6 +176,24 @@ importers:
       simple-git:
         specifier: ^3.25.0
         version: 3.36.0
+
+  packages/retrieval:
+    dependencies:
+      '@intentsync/core':
+        specifier: workspace:*
+        version: link:../core
+      '@intentsync/db':
+        specifier: workspace:*
+        version: link:../db
+      '@intentsync/embeddings':
+        specifier: workspace:*
+        version: link:../embeddings
+      '@intentsync/logger':
+        specifier: workspace:*
+        version: link:../logger
+      '@prisma/client':
+        specifier: '*'
+        version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
 
 packages:
 
@@ -307,6 +352,10 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@google/generative-ai@0.15.0':
+    resolution: {integrity: sha512-zs37judcTYFJf1U7tnuqnh7gdzF6dcWj9pNRxjA5JTONRoiQ0htrRdbefRFiewOIfXwhun5t9hbd2ray7812eQ==}
+    engines: {node: '>=18.0.0'}
 
   '@google/generative-ai@0.24.1':
     resolution: {integrity: sha512-MqO+MLfM6kjxcKoy0p1wRzG3b4ZZXtPI+z2IE26UogS2Cm/XHO+7gGRBh6gcJsOiIVoH93UwKvW4HdgiOZCy9Q==}
@@ -862,6 +911,8 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.0':
     optional: true
+
+  '@google/generative-ai@0.15.0': {}
 
   '@google/generative-ai@0.24.1': {}
 

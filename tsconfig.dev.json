@@ -8,7 +8,9 @@
       "@intentsync/github-sync": ["./packages/github-sync/src/index.ts"],
       "@intentsync/ingestion": ["./packages/ingestion/src/index.ts"],
       "@intentsync/db": ["./packages/db/src/index.ts"],
-      "@intentsync/embeddings": ["./packages/embeddings/src/index.ts"]
+      "@intentsync/embeddings": ["./packages/embeddings/src/index.ts"],
+      "@intentsync/retrieval": ["./packages/retrieval/src/index.ts"],
+      "@intentsync/ai-engine": ["./packages/ai-engine/src/index.ts"]
     }
   }
 }
