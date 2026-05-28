@@ -5,7 +5,7 @@
   "scripts": {
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
-    "cli": "pnpm --filter @intentsync/cli dev"
+    "cli": "pnpm --filter intentsync dev"
   },
   "devDependencies": {
     "@types/node": "^20.12.11",
