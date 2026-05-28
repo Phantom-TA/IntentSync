@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "intentsync": "./src/index.ts"
+    "intentsync": "./dist/index.js"
   },
   "scripts": {
     "dev": "tsx --tsconfig ../../tsconfig.dev.json src/index.ts",

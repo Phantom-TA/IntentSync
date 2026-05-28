@@ -78,7 +78,11 @@ Your role is to answer questions about a specific code repository using ONLY the
 - Cite specific commits (by SHA), pull requests (by #number), and issues (by #number) to support your answer.
 - If the evidence is insufficient to answer confidently, say so clearly — do NOT invent information.
 - Be concise but thorough. Focus on the "why" and "what changed", not just the "what".
-- Format your answer in plain text. Use bullet points sparingly, only when listing multiple distinct items.`);
+- Format your answer in plain text. Use bullet points sparingly, only when listing multiple distinct items.
+
+At the very end of your response, you MUST include a dedicated confidence block using this exact format:
+[CONFIDENCE_RATING: HIGH|MEDIUM|LOW]
+[CONFIDENCE_JUSTIFICATION: a single sentence explaining why you rated it this way based on the available evidence]`);
 
   sections.push(`━━━ QUESTION ━━━\n${question}`);
 

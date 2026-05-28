@@ -17,6 +17,21 @@ export interface SemanticChunk {
   metadata: Record<string, string | number | boolean>;
 }
 
+/**
+ * Objective retrieval confidence derived from ChromaDB similarity scores and evidence count.
+ * Used by AiEngine to enhance the prompt and render a final confidence indicator.
+ */
+export interface RetrievalConfidence {
+  /** Average similarity score of top chunks (0.0 = no match, 1.0 = perfect match) */
+  avgSimilarity: number;
+  /** Number of chunks above the high-relevance threshold (distance < 0.4) */
+  highRelevanceChunks: number;
+  /** Total entity evidence: commits + PRs + issues retrieved */
+  evidenceCount: number;
+  /** Computed tier: HIGH | MEDIUM | LOW | INSUFFICIENT */
+  tier: 'HIGH' | 'MEDIUM' | 'LOW' | 'INSUFFICIENT';
+}
+
 export interface HydratedCommit {
   sha: string;
   message: string;
@@ -67,5 +82,7 @@ export interface RankedContext {
   issues: HydratedIssue[];
   /** Graph-based co-change warnings from Neo4j (Phase 6) */
   coChanges?: Array<{ sourcePath: string; targetPath: string; weight: number }>;
+  /** Objective retrieval confidence computed from ChromaDB similarity scores */
+  confidence: RetrievalConfidence;
   durationMs: number;
 }

@@ -151,6 +151,7 @@ export const askCommand = new Command('ask')
             repository: target,
             answer: aiAnswer.answer,
             sources: aiAnswer.sources,
+            confidence: aiAnswer.confidence,
             meta: {
               chunksRetrieved: context.chunks.length,
               commitsFound: context.commits.length,
@@ -168,6 +169,33 @@ export const askCommand = new Command('ask')
           console.log(chalk.bold.white('Answer:'));
           console.log('');
           console.log(chalk.white(aiAnswer.answer));
+          console.log('');
+
+          // ── Confidence Rendering ──────────────────────────────
+          printDivider();
+          console.log(chalk.bold.white('Confidence Assessment:'));
+          
+          let ratingColor = chalk.red;
+          let barCount = 1;
+          if (aiAnswer.confidence.percentage >= 80) {
+            ratingColor = chalk.green;
+            barCount = 5;
+          } else if (aiAnswer.confidence.percentage >= 50) {
+            ratingColor = chalk.yellow;
+            barCount = 3;
+          }
+          const ratingBars = '■'.repeat(barCount) + '□'.repeat(5 - barCount);
+
+          let retrievalColor = chalk.red;
+          if (aiAnswer.confidence.retrievalTier === 'HIGH') {
+            retrievalColor = chalk.green;
+          } else if (aiAnswer.confidence.retrievalTier === 'MEDIUM') {
+            retrievalColor = chalk.yellow;
+          }
+
+          console.log(`  Rating:        ${ratingColor(ratingBars)} ${ratingColor(`${aiAnswer.confidence.percentage}%`)} (${aiAnswer.confidence.modelRating})`);
+          console.log(`  Justification: ${chalk.white(aiAnswer.confidence.justification)}`);
+          console.log(`  Retrieval:     ${retrievalColor(aiAnswer.confidence.retrievalTier)} (similarity: ${context.confidence.avgSimilarity})`);
           console.log('');
 
           if (aiAnswer.sources.length > 0) {
