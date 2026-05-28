@@ -1,6 +1,40 @@
 import { isWithinDays } from '@intentsync/core';
-import type { SemanticChunk, HydratedCommit, HydratedPR, RankedContext } from './types.js';
+import type { SemanticChunk, HydratedCommit, HydratedPR, RankedContext, RetrievalConfidence } from './types.js';
 import type { HydrationResult } from './entity-hydrator.js';
+
+/**
+ * Computes an objective RetrievalConfidence from ChromaDB chunk distance scores.
+ */
+function computeConfidence(
+  chunks: SemanticChunk[],
+  evidenceCount: number,
+): RetrievalConfidence {
+  if (chunks.length === 0) {
+    return { avgSimilarity: 0, highRelevanceChunks: 0, evidenceCount: 0, tier: 'INSUFFICIENT' };
+  }
+
+  const similarities = chunks.map((c) => 1 - c.distance / 2);
+  const avgSimilarity = similarities.reduce((a, b) => a + b, 0) / similarities.length;
+  const highRelevanceChunks = chunks.filter((c) => c.distance < 0.4).length;
+
+  let tier: RetrievalConfidence['tier'];
+  if (avgSimilarity >= 0.75 && evidenceCount >= 2) {
+    tier = 'HIGH';
+  } else if (avgSimilarity >= 0.55 && evidenceCount >= 1) {
+    tier = 'MEDIUM';
+  } else if (avgSimilarity >= 0.35) {
+    tier = 'LOW';
+  } else {
+    tier = 'INSUFFICIENT';
+  }
+
+  return {
+    avgSimilarity: Math.round(avgSimilarity * 100) / 100,
+    highRelevanceChunks,
+    evidenceCount,
+    tier,
+  };
+}
 
 /**
  * Applies repository-aware ranking on top of semantic distance.
@@ -97,13 +131,18 @@ export function rankContext(
     }
   }
 
+  const filteredIssues = issues.filter((i) => seenIssues.has(i.number));
+  const evidenceCount = commits.length + pullRequests.length + filteredIssues.length;
+  const confidence = computeConfidence(rankedChunks, evidenceCount);
+
   return {
     query,
     repoId,
     chunks: rankedChunks,
     commits,
     pullRequests,
-    issues: issues.filter((i) => seenIssues.has(i.number)),
+    issues: filteredIssues,
+    confidence,
     durationMs,
   };
 }

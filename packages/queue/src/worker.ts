@@ -10,6 +10,50 @@ import { GeminiChatClient, storeSummary } from '@intentsync/ai-engine';
 const log = createLogger('queue:worker');
 
 /**
+ * Extracts the suggested retry delay (in ms) from a Gemini 429 error message.
+ * Falls back to the provided default if the message doesn't include timing info.
+ */
+function extractRetryDelayMs(err: unknown, defaultMs = 15_000): number {
+  const msg = String(err);
+  // Gemini includes e.g. "Please retry in 46.651s" in the error message
+  const match = msg.match(/retry in (\d+(?:\.\d+)?)s/i);
+  if (match) {
+    return Math.ceil(parseFloat(match[1]) * 1000) + 1000; // add 1s buffer
+  }
+  return defaultMs;
+}
+
+/**
+ * Calls fn(), retrying up to maxRetries times when a 429 rate-limit error is hit.
+ * Waits exactly as long as Gemini tells us to before retrying.
+ */
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  label: string,
+  maxRetries = 3,
+): Promise<T> {
+  let attempt = 0;
+  while (true) {
+    try {
+      return await fn();
+    } catch (err) {
+      const is429 = String(err).includes('429') || String(err).includes('Too Many Requests');
+      if (is429 && attempt < maxRetries) {
+        attempt++;
+        const waitMs = extractRetryDelayMs(err);
+        log.warn(
+          { label, attempt, waitMs },
+          `Rate limited by Gemini — waiting ${waitMs}ms before retry ${attempt}/${maxRetries}`,
+        );
+        await new Promise((r) => setTimeout(r, waitMs));
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
+/**
  * Extracts the repoId from children values in BullMQ.
  */
 async function extractRepoIdFromChildren(job: Job): Promise<string> {
@@ -148,23 +192,43 @@ export function startWorkers(): Worker[] {
     { connection, concurrency: 1 },
   );
 
-  // 3. AI Summarize Worker
+  // 3. AI Summarize Worker (fire-and-forget — NOT on the critical sync path)
+  // Runs independently at its own pace. Retries on Gemini rate limits.
+  // Summaries are also generated lazily on first `ask` query, so no blocking needed.
   const summarizeWorker = new Worker(
     QUEUE_NAMES.AI_SUMMARIZE,
     async (job) => {
-      const repoId = await extractRepoIdFromChildren(job);
-      log.info({ jobId: job.id, repoId }, 'Starting AI summary worker job');
+      const { providerConfig } = job.data;
+
+      // Resolve repoId from the provider config (mirrors how ingestion does it)
+      const targetId = providerConfig.type === 'github'
+        ? `github:${providerConfig.owner}/${providerConfig.repo}`
+        : `local:${providerConfig.repoPath}`;
 
       const db = getDbClient();
+
+      // Look up the persisted repo record by its source ID
+      const repo = await db.repository.findFirst({
+        where: { id: { contains: targetId.split(':')[1] } },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      if (!repo) {
+        log.warn({ targetId }, 'AI summarize: repo not found in DB, skipping');
+        return { summarizedCommits: 0, summarizedPRs: 0 };
+      }
+
+      const repoId = repo.id;
+      log.info({ jobId: job.id, repoId }, 'Starting AI summary worker job (fire-and-forget)');
+
       const aiClient = new GeminiChatClient({
         apiKey: config.GEMINI_API_KEY,
         model: config.GEMINI_CHAT_MODEL,
       });
 
-      // Find commits and pull requests missing summaries
       const commits = await db.commit.findMany({
         where: { repoId, aiSummary: null },
-        take: 30, // limit batch to avoid excessive API requests
+        take: 30,
       });
 
       const prs = await db.pullRequest.findMany({
@@ -180,13 +244,14 @@ export function startWorkers(): Worker[] {
           const prompt = `Provide a concise 1-2 sentence summary of this commit. Focus on key logical or structural changes.
 Message: ${commit.message}
 Files changed: ${commit.filesChanged.join(', ')}`;
-          const response = await aiClient.complete(prompt);
+          const response = await retryWithBackoff(
+            () => aiClient.complete(prompt),
+            `commit:${commit.sha.slice(0, 8)}`,
+          );
           await storeSummary(db, 'commit', commit.sha, repoId, response.text.trim());
           summarizedCommits++;
-          // sleep 150ms to avoid rate limit spikes
-          await new Promise((r) => setTimeout(r, 150));
         } catch (err) {
-          log.warn({ sha: commit.sha, err: String(err) }, 'Failed to generate commit summary');
+          log.warn({ sha: commit.sha, err: String(err) }, 'Failed to generate commit summary after retries');
         }
       }
 
@@ -196,20 +261,19 @@ Files changed: ${commit.filesChanged.join(', ')}`;
 Title: ${pr.title}
 Body: ${pr.body || '(No body provided)'}
 State: ${pr.state}`;
-          const response = await aiClient.complete(prompt);
+          const response = await retryWithBackoff(
+            () => aiClient.complete(prompt),
+            `pr:${pr.number}`,
+          );
           await storeSummary(db, 'pull_request', String(pr.number), repoId, response.text.trim());
           summarizedPRs++;
-          await new Promise((r) => setTimeout(r, 150));
         } catch (err) {
-          log.warn({ prNumber: pr.number, err: String(err) }, 'Failed to generate PR summary');
+          log.warn({ prNumber: pr.number, err: String(err) }, 'Failed to generate PR summary after retries');
         }
       }
 
-      return {
-        repoId,
-        summarizedCommits,
-        summarizedPRs,
-      };
+      log.info({ repoId, summarizedCommits, summarizedPRs }, 'AI summarization complete');
+      return { repoId, summarizedCommits, summarizedPRs };
     },
     { connection, concurrency: 1 },
   );

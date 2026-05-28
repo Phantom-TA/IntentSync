@@ -18,7 +18,14 @@ export interface AiAnswer {
   modelUsed: string;
   promptTokenEstimate: number;
   durationMs: number;
+  confidence: {
+    retrievalTier: 'HIGH' | 'MEDIUM' | 'LOW' | 'INSUFFICIENT';
+    modelRating: 'HIGH' | 'MEDIUM' | 'LOW' | 'UNKNOWN';
+    justification: string;
+    percentage: number;
+  };
 }
+
 
 export interface AiSource {
   type: 'commit' | 'pull_request' | 'issue';
@@ -103,6 +110,12 @@ export class AiEngine {
         modelUsed: 'none',
         promptTokenEstimate: 0,
         durationMs: Date.now() - start,
+        confidence: {
+          retrievalTier: 'INSUFFICIENT',
+          modelRating: 'LOW',
+          justification: 'No source code repository chunks were retrieved for the search query.',
+          percentage: 0,
+        },
       };
     }
 
@@ -117,12 +130,24 @@ export class AiEngine {
       // Call Gemini
       const chatResponse = await this.chatClient.complete(prompt);
 
+      const ratingMatch = chatResponse.text.match(/\[CONFIDENCE_RATING:\s*(HIGH|MEDIUM|LOW)\]/i);
+      const justificationMatch = chatResponse.text.match(/\[CONFIDENCE_JUSTIFICATION:\s*(.*?)\]/i);
+
+      const modelRating = (ratingMatch?.[1]?.toUpperCase() ?? 'UNKNOWN') as 'HIGH' | 'MEDIUM' | 'LOW' | 'UNKNOWN';
+      const justification = justificationMatch?.[1]?.trim() ?? 'No explanation was returned by the model.';
+
+      // Strip out the confidence tags from the clean response body
+      const cleanAnswer = chatResponse.text
+        .replace(/\[CONFIDENCE_RATING:\s*(HIGH|MEDIUM|LOW)\]/gi, '')
+        .replace(/\[CONFIDENCE_JUSTIFICATION:\s*(.*?)\]/gi, '')
+        .trim();
+
       const sources = deriveSources(context);
       const durationMs = Date.now() - start;
 
-      // Lazily cache AI summaries for top commits and PRs (fire-and-forget)
+      // Cache AI summaries for top commits and PRs
       if (db) {
-        void this.cacheTopEntitySummaries(context, chatResponse.text, db);
+        await this.cacheTopEntitySummaries(context, cleanAnswer, db);
       }
 
       this.log.info(
@@ -130,12 +155,32 @@ export class AiEngine {
         'AI answer complete',
       );
 
+      // Calculate combined confidence percentage (Weighted: 40% Retrieval, 50% LLM Assessment, 10% Evidence)
+      const retrievalSimilarity = context.confidence.avgSimilarity; // 0 to 1
+      let modelWeight = 0.2;
+      if (modelRating === 'HIGH') modelWeight = 1.0;
+      else if (modelRating === 'MEDIUM') modelWeight = 0.6;
+      else if (modelRating === 'UNKNOWN') modelWeight = 0.4;
+
+      const evidenceCount = sources.length;
+      const evidenceWeight = evidenceCount >= 2 ? 1.0 : evidenceCount === 1 ? 0.5 : 0.0;
+
+      const confidencePercentage = Math.round(
+        (retrievalSimilarity * 40) + (modelWeight * 50) + (evidenceWeight * 10)
+      );
+
       return {
-        answer: chatResponse.text,
+        answer: cleanAnswer,
         sources,
         modelUsed: chatResponse.modelUsed,
         promptTokenEstimate,
         durationMs,
+        confidence: {
+          retrievalTier: context.confidence.tier,
+          modelRating,
+          justification,
+          percentage: confidencePercentage,
+        },
       };
     } catch (error) {
       if (error instanceof RetrievalError) throw error;

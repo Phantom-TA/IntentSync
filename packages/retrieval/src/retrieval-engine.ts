@@ -62,6 +62,12 @@ export class RetrievalEngine {
           commits: [],
           pullRequests: [],
           issues: [],
+          confidence: {
+            avgSimilarity: 0,
+            highRelevanceChunks: 0,
+            evidenceCount: 0,
+            tier: 'INSUFFICIENT',
+          },
           durationMs: Date.now() - start,
         };
       }
@@ -110,6 +116,8 @@ export class RetrievalEngine {
           prs: context.pullRequests.length,
           issues: context.issues.length,
           coChanges: context.coChanges.length,
+          confidence: context.confidence.tier,
+          avgSimilarity: context.confidence.avgSimilarity,
           durationMs: context.durationMs,
         },
         'Retrieval complete',
