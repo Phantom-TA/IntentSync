@@ -72,11 +72,18 @@ IntentSync stores repository metadata, vector embeddings, and graph relationship
 
 ## 📦 Step 2: Install the IntentSync CLI
 
-Install the CLI globally on your system using npm:
+Since the package is in local development, build the monorepo and install the CLI globally from your local repository clone:
 
-```bash
-npm install -g intentsync
-```
+1. Build the monorepo from the root directory:
+   ```bash
+   pnpm install
+   pnpm build
+   ```
+
+2. Install the compiled CLI globally:
+   ```bash
+   npm install -g ./apps/cli
+   ```
 
 ---
 
@@ -85,6 +92,22 @@ npm install -g intentsync
 Create a file named `.env` in your working folder (or set these as global environment variables in your terminal):
 
 ```ini
+# PostgreSQL (matching Docker settings)
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/intentsync
+
+# ChromaDB (matching mapped Docker port 8010)
+CHROMA_HOST=http://localhost:8010
+CHROMA_COLLECTION_PREFIX=intentsync
+
+# Neo4j (matching Docker settings)
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=intentsyncpass
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
 # Your personal GitHub token (needs 'repo' read scope for private repos)
 GITHUB_TOKEN=ghp_yourGithubTokenHere
 

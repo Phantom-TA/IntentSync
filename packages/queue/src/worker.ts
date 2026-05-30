@@ -1,6 +1,6 @@
 import { Worker, Job } from 'bullmq';
 import { QUEUE_NAMES, getConfig } from '@intentsync/core';
-import { createRedisConnection } from './connection.js';
+import { getRedisConnectionOptions } from './connection.js';
 import { createLogger } from '@intentsync/logger';
 import { runIngestionPipeline } from '@intentsync/ingestion';
 import { getDbClient, persistIngestionResult } from '@intentsync/db';
@@ -71,7 +71,7 @@ async function extractRepoIdFromChildren(job: Job): Promise<string> {
  * Starts all workers for the monorepo sync flow.
  */
 export function startWorkers(): Worker[] {
-  const connection = createRedisConnection();
+  const connection = getRedisConnectionOptions();
   const config = getConfig();
 
   // 1. Ingestion Worker

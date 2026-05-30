@@ -21,20 +21,31 @@ export const workerCommand = new Command('worker')
       printInfo('');
       printInfo(chalk.dim('Press Ctrl+C to terminate workers and exit...'));
 
-      // Keep process alive
-      process.on('SIGINT', async () => {
-        printInfo('\nShutting down workers gracefully...');
-        await Promise.all(workers.map((w) => w.close()));
-        printSuccess('All workers closed. Goodbye!');
-        process.exit(0);
-      });
+      let isShuttingDown = false;
+      const shutdown = async () => {
+        if (isShuttingDown) return;
+        isShuttingDown = true;
 
-      process.on('SIGTERM', async () => {
         printInfo('\nShutting down workers gracefully...');
-        await Promise.all(workers.map((w) => w.close()));
-        printSuccess('All workers closed. Goodbye!');
-        process.exit(0);
-      });
+
+        const forceExitTimeout = setTimeout(() => {
+          printError('Force exiting worker process (shutdown timeout)...');
+          process.exit(1);
+        }, 5000);
+
+        try {
+          await Promise.all(workers.map((w) => w.close()));
+          printSuccess('All workers closed. Goodbye!');
+          clearTimeout(forceExitTimeout);
+          process.exit(0);
+        } catch (error) {
+          printError(`Error during worker shutdown: ${error instanceof Error ? error.message : String(error)}`);
+          process.exit(1);
+        }
+      };
+
+      process.on('SIGINT', shutdown);
+      process.on('SIGTERM', shutdown);
     } catch (error) {
       printError(`Failed to start workers: ${error instanceof Error ? error.message : String(error)}`);
       process.exit(1);

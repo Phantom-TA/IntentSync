@@ -26,8 +26,29 @@ export function createRedisConnection(options?: RedisOptions): Redis {
     maxRetriesPerRequest: null,
     // Add safety reconnect options
     lazyConnect: true,
+    // Avoid offline queue to prevent hanging commands when connection is down/reset
+    enableOfflineQueue: false,
     ...options,
   });
+}
+
+/**
+ * Returns connection options for Redis, suitable for BullMQ.
+ */
+export function getRedisConnectionOptions(options?: RedisOptions): RedisOptions {
+  const config = getConfig();
+  const host = config.REDIS_HOST;
+  const port = config.REDIS_PORT;
+  const password = config.REDIS_PASSWORD;
+
+  return {
+    host,
+    port,
+    password: password || undefined,
+    maxRetriesPerRequest: null,
+    enableOfflineQueue: false,
+    ...options,
+  };
 }
 
 /**
