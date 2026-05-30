@@ -2,6 +2,7 @@ export {
   createRedisConnection,
   getSharedRedisConnection,
   closeSharedRedisConnection,
+  getRedisConnectionOptions,
 } from './connection.js';
 
 export {
