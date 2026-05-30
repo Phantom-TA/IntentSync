@@ -19,6 +19,8 @@ const external = [
   'pino'
 ];
 
+import fs from 'fs';
+
 build({
   entryPoints: ['src/index.ts'],
   bundle: true,
@@ -28,6 +30,9 @@ build({
   external,
   sourcemap: true,
   minify: false,
+}).then(() => {
+  // Copy the Prisma schema into the dist folder so it can be packaged and used on postinstall
+  fs.copyFileSync('../../packages/db/prisma/schema.prisma', 'dist/schema.prisma');
 }).catch((err) => {
   console.error(err);
   process.exit(1);

@@ -17,7 +17,7 @@ program
     chalk.bold.cyan('IntentSync') +
     ' — AI-powered repository intelligence and engineering memory',
   )
-  .version('0.1.3');
+  .version('0.1.4');
 
 program.addCommand(repoCommand);
 program.addCommand(syncCommand);

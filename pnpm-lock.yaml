@@ -59,6 +59,9 @@ importers:
       pino-pretty:
         specifier: ^11.2.1
         version: 11.3.0
+      prisma:
+        specifier: ^6.9.0
+        version: 6.19.3(typescript@5.9.3)
       simple-git:
         specifier: ^3.25.0
         version: 3.36.0
