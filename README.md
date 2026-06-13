@@ -1,6 +1,6 @@
 # 🚀 IntentSync
 
-**IntentSync** is an AI-powered repository intelligence engine and engineering memory tool. It indexes your codebase history, commits, pull requests, issues, and code relationships into a local GraphRAG knowledge base, allowing you to query your repository history with natural language.
+**IntentSync** is an AI-powered repository intelligence engine and engineering memory tool.It indexes your codebase history, commits, pull requests, issues, and code relationships into a local GraphRAG knowledge base, allowing you to query your repository history with natural language.
 
 Every response is backed by objective **Answer Confidence Scores (in %)**, ensuring you know exactly how much the answer is grounded in real commits, pull requests, and file structural coupling.
 
