@@ -68,8 +68,10 @@ See our dedicated **[Beta Tester Setup Guide (BETA_GUIDE.md)](./BETA_GUIDE.md)**
 ### Quick Commands:
 
 ```bash
-# 1. Install CLI globally
-npm install -g intentsync
+# 1. Build and install CLI globally from local clone
+pnpm install
+pnpm build
+npm install -g ./apps/cli
 
 # 2. Run local databases via Docker
 docker compose up -d
